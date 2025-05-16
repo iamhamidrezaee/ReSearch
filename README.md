@@ -1,5 +1,3 @@
-# ReSearch
-
 <div align="center">
   <img src="backend/static/images/ReSearch_logo.png" alt="ReSearch Logo" width="400"/>
   
