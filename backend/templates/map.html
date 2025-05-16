@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReSearch - Paper Orb Visualization</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='map_styles.css') }}">
+  <link rel="icon" href="../static/images/Re.ico" type="image/Re-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat:wght@400;500;600&family=Open+Sans:wght@500;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <script src="{{ url_for('static', filename='js/paperMap.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/mapUtils.js') }}"></script>
+</head>
+
+<body>
+  <!-- Particle background -->
+  <div id="particles-js"></div>
+
+  <div class="full-body-container">
+    <div class="top-text">
+      <div class="research-title">
+        <span id="re-text">Re</span><span id="search-text">Search Orb</span>
+      </div>
+
+      <!-- Moved navigation under the ReSearch title -->
+      <div class="nav-container">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/map" class="nav-link">Orb</a>
+        <a href="/explore" class="nav-link">Explore</a>
+        <a href="/team" class="nav-link">Team</a>
+      </div>
+
+      <div class="input-box" onclick="sendFocus()">
+        <img src="{{ url_for('static', filename='images/mag.png') }}" />
+        <input placeholder="Search for research papers..." id="map-search-input">
+      </div>
+      <div class="input-box" id="keyword-search-container" style="display: none;">
+        <img src="{{ url_for('static', filename='images/mag.png') }}" />
+        <input placeholder="Filter by keywords..." id="keyword-search-bar">
+      </div>
+    </div>
+
+    <!-- All clusters go inside this single container -->
+    <div id="map-container"></div>
+
+    <!-- Single tooltip for all nodes -->
+    <div id="paper-tooltip" class="paper-tooltip">
+      <h3 class="tooltip-title"></h3>
+      <p class="tooltip-abstract"></p>
+    </div>
+
+    <!-- Favorites Container -->
+    <div id="favorites-container" class="favorites-container">
+      <div class="favorites-header">
+        <h3>Favorite Papers</h3>
+      </div>
+      <div class="favorites-list" id="favorites-list">
+        <!-- Favorite papers will be added here dynamically -->
+        <div class="no-favorites-message">No favorites yet. Click the heart icon in paper popups to add them.</div>
+      </div>
+    </div>
+
+  <!-- Add particles.js library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+  <script src="{{ url_for('static', filename='js/base.js') }}"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initialize the map
+      window.multiMap = new MultiClusterMap('map-container', 'paper-tooltip');
+
+      // Initialize keyword search input with debounce
+      const kwInput = document.getElementById('keyword-search-bar');
+      function debounce(fn, wait) {
+        let timer;
+        return (...args) => {
+          clearTimeout(timer);
+          timer = setTimeout(() => fn.apply(this, args), wait);
+        };
+      }
+      kwInput.addEventListener('input', debounce(function () {
+        if (window.multiMap) {
+          window.multiMap.keywordHighlightMap(kwInput.value);
+        }
+      }, 200));
+
+      // Basic search input handling
+      const searchInput = document.getElementById('map-search-input');
+
+      const debouncedSearch = debounce(() => {
+        const query = searchInput.value.trim();
+        if (query && window.multiMap) window.multiMap.fetchData(query);
+      }, 500);
+
+      searchInput.addEventListener('input', debouncedSearch);
+      searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          const query = searchInput.value.trim();
+          if (query && window.multiMap) window.multiMap.fetchData(query);
+        }
+      });
+
+      // If you have an onclick to focus
+      window.sendFocus = function () {
+        searchInput.focus();
+      };
+
+      // Add legend after DOM content loaded
+      setTimeout(addPersistentOrbLegend, 500);
+
+      // Optionally auto-focus
+      searchInput.focus();
+
+      const pendingSearch = localStorage.getItem('pendingOrbSearch');
+    
+    if (pendingSearch) {
+      // Clear the stored value immediately to prevent it from persisting
+      localStorage.removeItem('pendingOrbSearch');
+      
+      // Get the search input element
+      const searchInput = document.getElementById('map-search-input');
+      
+      if (searchInput) {
+        // Fill the search input with the paper title
+        searchInput.value = pendingSearch;
+        
+        // Give the page a moment to initialize before triggering the search
+        setTimeout(function() {
+          // Find and programmatically execute the search function
+          if (window.multiMap) {
+            window.multiMap.fetchData(pendingSearch);
+          } else {
+            // Alternative approach: simulate the Enter key press
+            const event = new KeyboardEvent('keypress', {
+              key: 'Enter',
+              code: 'Enter',
+              keyCode: 13,
+              which: 13,
+              bubbles: true
+            });
+            searchInput.dispatchEvent(event);
+          }
+        }, 500); // Half second delay
+      }
+    }
+    });
+  </script>
+
+
+</body>
+
+</html>

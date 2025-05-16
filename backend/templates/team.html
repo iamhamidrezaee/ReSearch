@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReSearch - Our Team</title>
+    <link rel="stylesheet" href="../static/style.css">
+    <link rel="icon" href="../static/images/Re.ico" type="image/Re-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat:wght@400;500;600&family=Open+Sans:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Particle background -->
+    <div id="particles-js"></div>
+    
+    <div class="full-body-container">
+        <div class="top-text" style="margin-top: 80px;">
+            <div class="research-title" style="margin-bottom: 10px;">
+                <span id="re-text">Re</span><span id="search-text">Search</span>
+            </div>
+            
+            <!-- Moved navigation under the ReSearch title -->
+            <div class="nav-container">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/map" class="nav-link">Orb</a>
+                <a href="/explore" class="nav-link">Explore</a>
+                <a href="/team" class="nav-link">Team</a>
+            </div>
+            
+            <h2 class="team-title">Our Team</h2>
+        </div>
+        
+        <div class="team-container">
+            <!-- Team member 1 (Leadership) -->
+            <div class="team-member">
+                <img src="{{ url_for('static', filename='images/profile_hamid.png') }}" class="team-member-img" alt="Team Member">
+                <div class="team-member-info">
+                    <h3 class="team-member-name">Hamid Rezaee</h3>
+                    <p class="team-member-title">Lead Developer and Project Manager</p>
+                    <div class="team-member-social">
+                        <a href="https://www.linkedin.com/in/iamhamidrezaee/" target="_blank" class="social-link">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Team member 2 (Leadership) -->
+            <div class="team-member">
+                <img src="{{ url_for('static', filename='images/profile_joseph.png') }}" class="team-member-img" alt="Team Member">
+                <div class="team-member-info">
+                    <h3 class="team-member-name">Joseph Ugarte</h3>
+                    <p class="team-member-title">Advisor</p>
+                    <div class="team-member-social">
+                        <a href="https://www.linkedin.com/" target="_blank" class="social-link">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Team member 3 -->
+            <div class="team-member">
+                <img src="{{ url_for('static', filename='images/profile_asli.png') }}" class="team-member-img" alt="Team Member">
+                <div class="team-member-info">
+                    <h3 class="team-member-name">Asli Cihangir</h3>
+                    <p class="team-member-title">Developer</p>
+                    <div class="team-member-social">
+                        <a href="https://www.linkedin.com/in/asli-cihangir-52925026a" target="_blank" class="social-link">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Team member 4 -->
+            <div class="team-member">
+                <img src="{{ url_for('static', filename='images/profile_hannah.png') }}" class="team-member-img" alt="Team Member">
+                <div class="team-member-info">
+                    <h3 class="team-member-name">Hannah Price</h3>
+                    <p class="team-member-title">Developer</p>
+                    <div class="team-member-social">
+                        <a href="https://www.linkedin.com/in/hannah-price-b25b63236" target="_blank" class="social-link">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Team member 5 -->
+            <div class="team-member">
+                <img src="{{ url_for('static', filename='images/profile_kelly.png') }}" class="team-member-img" alt="Team Member">
+                <div class="team-member-info">
+                    <h3 class="team-member-name">Kelly Hu</h3>
+                    <p class="team-member-title">Developer</p>
+                    <div class="team-member-social">
+                        <a href="https://www.linkedin.com/" target="_blank" class="social-link">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Team member 6 -->
+            <div class="team-member">
+                <img src="{{ url_for('static', filename='images/profile_rich.png') }}" class="team-member-img" alt="Team Member">
+                <div class="team-member-info">
+                    <h3 class="team-member-name">Rich Hu</h3>
+                    <p class="team-member-title">Developer</p>
+                    <div class="team-member-social">
+                        <a href="https://www.linkedin.com/in/rich-hu" target="_blank" class="social-link">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add particles.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    <script src="{{ url_for('static', filename='js/base.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReSearch - Find high quality research papers</title>
+    <link rel="stylesheet" href="../static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="icon" href="../static/images/Re.ico" type="image/Re-icon">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat:wght@400;500;600&family=Open+Sans:wght@500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Particle background -->
+    <div id="particles-js"></div>
+
+    <div class="full-body-container">
+        <div class="top-text">
+            <div class="research-title">
+                <span id="re-text">Re</span><span id="search-text">Search</span>
+            </div>
+
+            <!-- Moved navigation under the ReSearch title -->
+            <div class="nav-container">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/map" class="nav-link">Orb</a>
+                <a href="/explore" class="nav-link">Explore</a>
+                <a href="/team" class="nav-link">Team</a>
+            </div>
+
+            <div class="input-box" onclick="sendFocus()">
+                <img src="{{ url_for('static', filename='images/mag.png') }}" />
+                <input placeholder="Search for research papers..." id="filter-text-val">
+            </div>
+            <div class="input-box" id="keyword-search-container" style="display: none;">
+                <img src="{{ url_for('static', filename='images/mag.png') }}" />
+                <input placeholder="Filter by keywords..." id="keyword-search-bar">
+            </div>
+        </div>
+        <div id="answer-box">
+            <!-- Search results will appear here -->
+        </div>
+    </div>
+
+    <!-- Add particles.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    <script src="../static/js/base.js"></script>
+
+    <script>
+        function debounce(func, wait) {
+            let timeout;
+            return function () {
+                const context = this;
+                const args = arguments;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    func.apply(context, args);
+                }, wait);
+            };
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('filter-text-val');
+
+            const debouncedSearch = debounce(filterText, 300);
+
+            searchInput.addEventListener('input', debouncedSearch);
+
+            sendFocus();
+        });
+
+        function sendFocus() {
+            document.getElementById('filter-text-val').focus();
+        }
+
+        function filterText() {
+            console.log("filterText() triggered");
+            const query = document.getElementById("filter-text-val").value.trim();
+            document.getElementById("answer-box").innerHTML = "";
+
+            if (!query) return; // Don't search if query is empty
+
+            // Show small loading indicator
+            const loadingIndicator = document.createElement("div");
+            loadingIndicator.className = "loading";
+            loadingIndicator.textContent = "Searching...";
+            document.getElementById("answer-box").appendChild(loadingIndicator);
+
+            fetch("/search?" + new URLSearchParams({ query: query }).toString())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok: ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Received data:", data);
+                    // Clear the loading indicator
+                    document.getElementById("answer-box").innerHTML = "";
+
+                    if (!Array.isArray(data) || data.length === 0) {
+                        document.getElementById("answer-box").innerHTML =
+                            "<div class='no-results'>No results found</div>";
+                        return;
+                    }
+
+                    data.forEach(item => {
+                        const resultDiv = document.createElement("div");
+                        resultDiv.className = "result-item";
+
+                        // Create title element
+                        const titleElement = document.createElement("h3");
+                        titleElement.className = "paper-title";
+                        titleElement.textContent = item.title || "No title available";
+
+                        // Create abstract element
+                        const abstractElement = document.createElement("p");
+                        abstractElement.className = "abstract";
+                        abstractElement.textContent = item.abstract || "No abstract available";
+
+                        // Create link element if available
+                        let linkElement = null;
+                        if (item.link) {
+                            linkElement = document.createElement("a");
+                            linkElement.href = "javascript:void(0);"; // Prevent default navigation
+                            linkElement.className = "paper-link";
+                            linkElement.textContent = "Read Paper";
+                            linkElement.onclick = function (e) {
+                                e.preventDefault();
+                                createPaperPopup(item.link, item.title);
+                            };
+                        }
+
+                        // Add elements to result div
+                        resultDiv.appendChild(titleElement);
+                        resultDiv.appendChild(abstractElement);
+                        if (linkElement) {
+                            resultDiv.appendChild(linkElement);
+                        }
+                        //citation
+                        const magentaText = document.createElement("div");
+                        magentaText.className = "citation-text";
+                        magentaText.textContent = `Number of citations: ${item.citation_count}`; // Customize this text as needed
+
+                        resultDiv.appendChild(magentaText);
+                        // Add result to answer box
+                        document.getElementById("answer-box").appendChild(resultDiv);
+                    });
+                    document.getElementById("keyword-search-container").style.display = "flex";
+                })
+                .catch(error => {
+                    console.error("Error fetching search results:", error);
+                    document.getElementById("answer-box").innerHTML =
+                        "<div class='error'>Error fetching results: " + error.message + "</div>";
+                });
+        }
+
+        // Paper popup function
+        function createPaperPopup(pdfUrl, paperTitle) {
+            // 1. Create a semi-transparent overlay
+            const overlay = document.createElement('div');
+            overlay.className = 'paper-popup-container';
+
+            // 2. Create the popup content wrapper
+            const popupContent = document.createElement('div');
+            popupContent.className = 'paper-popup-content';
+
+            // 3. Header with close button
+            const header = document.createElement('div');
+            header.className = 'paper-popup-header';
+
+            const titleEl = document.createElement('h3');
+            titleEl.className = 'paper-popup-title';
+            titleEl.textContent = paperTitle || "Paper PDF";
+
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'paper-popup-close';
+            closeBtn.innerHTML = '&times;';
+            closeBtn.onclick = (e) => {
+                e.stopPropagation();
+                document.body.removeChild(overlay);
+            };
+
+            header.appendChild(titleEl);
+            header.appendChild(closeBtn);
+
+            // 4. Body with the PDF in an iframe
+            const body = document.createElement('div');
+            body.className = 'paper-popup-body';
+
+            const iframe = document.createElement('iframe');
+            iframe.className = 'paper-popup-iframe';
+            iframe.src = pdfUrl; // Link to the PDF
+
+            body.appendChild(iframe);
+
+            // 5. Footer with external link
+            const footer = document.createElement('div');
+            footer.className = 'paper-popup-footer';
+
+            const externalLink = document.createElement('a');
+            externalLink.className = 'paper-popup-external-link';
+            externalLink.href = pdfUrl;
+            externalLink.target = '_blank';
+            externalLink.textContent = 'Open in new tab';
+
+            footer.appendChild(externalLink);
+
+            // 6. Put it all together
+            popupContent.appendChild(header);
+            popupContent.appendChild(body);
+            popupContent.appendChild(footer);
+            overlay.appendChild(popupContent);
+
+            //Citation
+            /*
+            const actionButton = document.createElement('button');
+            actionButton.className = 'paper-popup-action-btn';
+            actionButton.textContent = 'Get citation';
+            actionButton.onclick = (e) => {
+                e.stopPropagation();
+                alert(`MLA: [Surname, First initials]. [(Date)] ${paperTitle}.[location].[publisher].${pdfUrl}`);
+            }
+            footer.appendChild(actionButton);
+            */
+
+            // 7. Add overlay to document
+            document.body.appendChild(overlay);
+
+            // 8. Close popup when clicking outside of content
+            overlay.addEventListener('click', function (e) {
+                if (e.target === overlay) {
+                    document.body.removeChild(overlay);
+                }
+            });
+
+            // 9. Add keyboard support for escape key
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && document.body.contains(overlay)) {
+                    document.body.removeChild(overlay);
+                }
+            });
+        }
+    </script>
+    //highlighting green
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const kwInput = document.getElementById('keyword-search-bar');
+            kwInput.addEventListener('input', debounce(keywordHighlight, 200));
+        });
+
+        function keywordHighlight() {
+            const raw = document.getElementById("keyword-search-bar").value.toLowerCase().trim();
+            const keywords = raw.split(/[\s,]+/).filter(k => k);
+
+            // Reset all items first
+            document.querySelectorAll(".result-item").forEach(item => {
+                item.style.borderLeftColor = "#ff3333"; // Reset to default red
+                item.classList.remove("result-item-highlighted");
+
+                // Remove any highlight markers
+                const highlightMarker = item.querySelector(".highlight-marker");
+                if (highlightMarker) {
+                    highlightMarker.remove();
+                }
+            });
+
+            // If no keywords, exit early
+            if (keywords.length === 0) return;
+
+            const resultItems = document.querySelectorAll(".result-item");
+
+            resultItems.forEach(item => {
+                const abstractEl = item.querySelector(".abstract");
+                const titleEl = item.querySelector(".paper-title");
+                const abstractText = abstractEl.textContent.toLowerCase();
+                const titleText = titleEl.textContent.toLowerCase();
+
+                const hasAllKeywords = keywords.every(k => abstractText.includes(k) || titleText.includes(k));
+
+                if (hasAllKeywords) {
+                    // Apply the highlighting class
+                    item.classList.add("result-item-highlighted");
+
+                    // Create and add the highlight marker
+                    const marker = document.createElement("div");
+                    marker.className = "highlight-marker";
+                    marker.innerHTML = `<span>Matches${keywords.length > 1 ? ' all' : ''} keyword${keywords.length > 1 ? 's' : ''}</span>`;
+
+                    // Insert after the title
+                    titleEl.parentNode.insertBefore(marker, titleEl.nextSibling);
+                }
+            });
+        }
+        // Add CSS to the document
+        const style = document.createElement('style');
+        style.textContent = `
+        .result-item-highlighted {
+            border: 3px solid #ff6666 !important;
+            background-color: rgba(50, 30, 30, 0.9) !important;
+            box-shadow: 0 6px 25px rgba(255, 51, 51, 0.25) !important;
+            position: relative;
+            animation: pulseShadow 2s infinite alternate;
+        }
+
+        .highlight-marker {
+            display: inline-block;
+            background-color: rgba(255, 51, 51, 0.15);
+            border-radius: 4px;
+            padding: 4px 8px;
+            margin-bottom: 12px;
+            font-size: 12px;
+            font-family: 'Montserrat', sans-serif;
+            color: #ff6666;
+            border: 1px solid rgba(255, 51, 51, 0.3);
+        }
+
+        @keyframes pulseShadow {
+            0% { box-shadow: 0 6px 25px rgba(255, 51, 51, 0.25); }
+            100% { box-shadow: 0 8px 30px rgba(255, 51, 51, 0.4); }
+        }
+        `;
+        document.head.appendChild(style);
+
+        // Make sure to use the updated function
+        document.addEventListener('DOMContentLoaded', () => {
+            const kwInput = document.getElementById('keyword-search-bar');
+            kwInput.addEventListener('input', debounce(keywordHighlight, 200));
+        });
+    </script>
+</body>
+
+</html>

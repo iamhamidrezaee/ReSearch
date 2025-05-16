@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReSearch - Explore</title>
+    <link rel="stylesheet" href="../static/style.css">
+    <link rel="stylesheet" href="../static/explore_style.css">
+    <link rel="icon" href="../static/images/Re.ico" type="image/Re-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat:wght@400;500;600&family=Open+Sans:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+</head>
+<body>
+    <!-- Particle background -->
+    <div id="particles-js"></div>
+    
+    <div class="full-body-container">
+        <div style="position: relative; width: 100%; padding-top: 30px; margin-bottom: 20px;">
+            <!-- Title moved to top left with inline styles -->
+            <div class="research-title" style="position: absolute; top: 25px; left: 50%; transform: translateX(-50%); font-size: 40px; letter-spacing: -2px; text-align: center;">
+                <span id="re-text">Re</span><span id="search-text">Search</span> <span class="galaxy-text">Explore</span>
+            </div>
+            
+            <!-- Navigation bar centered at the top -->
+            <div style="display: flex; justify-content: center; margin: 0 auto; padding-top: 70px;">
+                <div class="nav-container">
+                    <a href="/" class="nav-link">Home</a>
+                    <a href="/map" class="nav-link">Orb</a>
+                    <a href="/explore" class="nav-link">Explore</a>
+                    <a href="/team" class="nav-link">Team</a>
+                </div>
+            </div>
+            
+            <!-- Subtitle centered below the nav -->
+            <div class="explore-subtitle" style="text-align: center; margin-top: 10px;">Navigate the universe of research papers</div>
+        </div>
+
+        <!-- Explore content container -->
+        <div class="explore-container">
+            <!-- Control Panel -->
+            <div class="control-panel">
+
+                <div class="panel-section">
+                    <h3>Research Domains</h3>
+                    <div class="domain-filters" id="domain-filters">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3>Search Papers</h3>
+                    <div class="search-container">
+                        <input type="text" id="paper-search" placeholder="Search for papers" class="search-input">
+                        <button id="search-button" class="search-button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    <div class="search-results-container">
+                        <div id="search-results-list"></div>
+                    </div>
+                </div>
+                
+                <div class="panel-section">
+                    <h3>Guided Journeys</h3>
+                    <div class="journey-list" id="journey-list">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="panel-section">
+                    <h3>Visualization Controls</h3>
+                    <div class="control-buttons">
+                        <button id="zoom-in" class="control-btn"><i class="fas fa-search-plus"></i></button>
+                        <button id="zoom-out" class="control-btn"><i class="fas fa-search-minus"></i></button>
+                        <button id="reset-view" class="control-btn"><i class="fas fa-sync-alt"></i></button>
+                    </div>
+                    <div class="visualization-toggle">
+                        <div class="toggle-label">Layout:</div>
+                        <div class="toggle-options">
+                            <button class="toggle-btn active" id="galaxy-view">Galaxy</button>
+                            <button class="toggle-btn" id="cluster-view">Clusters</button>
+                        </div>
+                    </div>
+                    <div class="visualization-slider">
+                        <label for="node-size">Node Size:</label>
+                        <input type="range" id="node-size" min="1" max="10" value="5">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualization Area -->
+            <div class="visualization-container">
+                <div id="galaxy-container"></div>
+                
+                <!-- Loading Indicator -->
+                <div id="loading-container">
+                    <div class="galaxy-loader">
+                        <div class="galaxy-spinner"></div>
+                    </div>
+                    <div class="loading-text">Mapping research universe...</div>
+                </div>
+                
+                <!-- Paper Detail Panel -->
+                <div class="paper-detail-panel" id="paper-detail">
+                    <div class="panel-header">
+                        <h2 id="paper-title">Select a paper to view details</h2>
+                        <button id="close-panel"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="panel-content">
+                        <div class="paper-authors" id="paper-authors"></div>
+                        <div class="paper-abstract" id="paper-abstract"></div>
+                        <div class="paper-stats">
+                            <div class="stat-item">
+                                <div class="stat-icon"><i class="fas fa-quote-right"></i></div>
+                                <div class="stat-value" id="citation-count">--</div>
+                                <div class="stat-label">Citations</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
+                                <div class="stat-value" id="publication-year">--</div>
+                                <div class="stat-label">Year</div>
+                            </div>
+
+                        </div>
+                        <a id="paper-link" href="#" target="_blank" class="paper-link">
+                            <i class="fas fa-external-link-alt"></i> View Paper
+                        </a>
+                        <a id="open-in-orb" href="#" class="paper-link orb-link">
+                            <i class="fas fa-globe"></i> Open in Orb
+                        </a>
+                        <div class="related-papers">
+                            <h3>Related Papers</h3>
+                            <div id="related-papers-list"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Journey Guide Panel -->
+                <div class="journey-guide-panel" id="journey-guide">
+                    <div class="panel-header">
+                        <h2 id="journey-title">Journey Title</h2>
+                        <button id="close-journey"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="panel-content">
+                        <div class="journey-description" id="journey-description"></div>
+                        <div class="journey-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="journey-progress-fill"></div>
+                            </div>
+                            <div class="progress-text">
+                                Paper <span id="current-step">1</span> of <span id="total-steps">5</span>
+                            </div>
+                        </div>
+                        <div class="journey-navigation">
+                            <button id="prev-paper" class="journey-nav-btn"><i class="fas fa-arrow-left"></i> Previous</button>
+                            <button id="next-paper" class="journey-nav-btn">Next <i class="fas fa-arrow-right"></i></button>
+                        </div>
+                        <div class="journey-paper">
+                            <h3 id="journey-paper-title">Paper Title</h3>
+                            <div id="journey-paper-abstract"></div>
+                            <a id="journey-paper-link" href="#" target="_blank" class="paper-link">
+                                <i class="fas fa-external-link-alt"></i> View Paper
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add particles.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    <script src="../static/js/base.js"></script>
+    <script src="{{ url_for('static', filename='js/explore.js') }}"></script>
+</body>
+</html>
